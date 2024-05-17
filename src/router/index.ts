@@ -33,9 +33,9 @@ interface IUser {
 }
 
 router.beforeEach((to, from, next) => {
-  const userLoggedin = JSON.parse(localStorage.getItem('user') || '{}') as IUser;
-  const tokenLoggedin = localStorage.getItem('token') || '';
-  if (to.path !== '/login' && (!userLoggedin.email || !tokenLoggedin)) {
+  const userLoggedIn = JSON.parse(localStorage.getItem('user') || '{}') as IUser;
+  const tokenLoggedIn = localStorage.getItem('token') || '';
+  if (to.path !== '/login' && (!userLoggedIn.email || !tokenLoggedIn)) {
     next('/login');
   } else {
     next();

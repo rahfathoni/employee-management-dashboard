@@ -1,9 +1,13 @@
 <script setup lang="ts">
   import { useMainStore } from '@/stores/main';
   import { useField, useForm } from 'vee-validate';
-  import { onBeforeMount, ref } from 'vue';
+  import { onBeforeMount, ref, reactive } from 'vue';
+  import { useRouter } from 'vue-router';
+  import PopNotif from '@/components/PopNotif.vue'
 
+  const router = useRouter();
   const mainStore = useMainStore();
+  const { loginUser } = mainStore;
   onBeforeMount(() => {
     mainStore.$reset();
     localStorage.removeItem('user');
@@ -11,6 +15,12 @@
   });
   
   const isPasswordShow = ref(false);
+  const snackbar = reactive({
+    show: false,
+    text: '',
+    color: '',
+    timeout: 3000
+  });
     
   const { handleSubmit } = useForm({
     validationSchema: {
@@ -28,8 +38,28 @@
   const password = useField('password');
 
   const login = handleSubmit(async (value) => {
-    console.log('value =>', value)
+    try {
+      const response = await loginUser({
+        email: value.email,
+        password: value.password
+      });
+      if (response.status === true) {
+        router.push({ path: '/' });
+      }
+    } catch (err: any) {
+      if (err.response.status === 401) {
+        snackbar.text = "Unauthorized. HINT: try username-password from example";
+        snackbar.color = "warning";
+      } else {
+        snackbar.text = "Error. Plase try again later";
+        snackbar.color = "danger";
+      }
+      snackbar.show = true;
+    }
   })
+  const closePopup = (val: boolean) => {
+    snackbar.show = val;
+  }
 </script>
 
 <template>
@@ -40,7 +70,7 @@
       </h1>
     </section>
     <v-card name="loginContainer" class="mx-auto mt-7" min-width="500">
-      <v-card-title class="mb-3 text-h4">Login Form</v-card-title>
+      <v-card-title class="mb-3 text-h4 text-black-alter">Login Form</v-card-title>
       <v-card-text>
         <form name="loginForm" @submit.prevent="login">
           <v-text-field
@@ -81,5 +111,12 @@
       </v-card-text>
     </v-card>
 
+    <PopNotif
+      v-model="snackbar.show"
+      :text="snackbar.text"
+      :color="snackbar.color"
+      :timeout="snackbar.timeout"
+      @closeShow="closePopup"
+    />
   </main>
 </template>
