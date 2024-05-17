@@ -3,7 +3,7 @@
   import { useField, useForm } from 'vee-validate';
   import { onBeforeMount, ref, reactive } from 'vue';
   import { useRouter } from 'vue-router';
-  import PopNotif from '@/components/PopNotif.vue'
+  import PopNotif from '@/components/PopNotif.vue';
 
   const router = useRouter();
   const mainStore = useMainStore();
@@ -44,7 +44,7 @@
         password: value.password
       });
       if (response.status === true) {
-        router.push({ path: '/' });
+        router.push({ path: '/employee' });
       }
     } catch (err: any) {
       if (err.response.status === 401) {

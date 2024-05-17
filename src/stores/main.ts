@@ -10,9 +10,7 @@ export const useMainStore = defineStore('main', () => {
     email: '' as string,
     name: '' as string
   });
-  const token = ref({
-    token: '' as string
-  });
+  const token = ref('' as string);
 
   const $reset = () => {
     user.value = {
@@ -20,9 +18,7 @@ export const useMainStore = defineStore('main', () => {
       email: '',
       name: ''
     };
-    token.value = {
-      token: ''
-    }
+    token.value = '';
   }
   const loginUser = async (input: UserLoginRequest) => {
     try {
@@ -45,12 +41,27 @@ export const useMainStore = defineStore('main', () => {
       throw error;
     }
   }
+  const logoutUser = async () => {
+    try {
+      const response = await server.post('/auth/logout', {}, {
+        headers: {
+          'Authorization': `Bearer ${token.value}`
+        }
+      });
+      console.log('[RES] logoutUser', response.data);
+      return response.data;
+    } catch (error) {
+      console.log('[ERR] logoutUser', error);
+      throw error;
+    }
+  }
 
   return { 
     showNavBar,
     token, 
     user, 
     $reset, 
-    loginUser 
+    loginUser,
+    logoutUser 
   };
 })

@@ -35,7 +35,7 @@ if (userLoggedIn && tokenLoggedIn) {
     if (userObject && userObject.email) {
       mainStore.$patch((state) => {
         state.user = userObject;
-        state.token.token = tokenLoggedIn;
+        state.token = tokenLoggedIn;
       });
     }
   } catch (error) {
