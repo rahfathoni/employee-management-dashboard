@@ -3,7 +3,7 @@ import LoginView from '@/views/LoginView.vue';
 import HomeView from '@/views/HomeView.vue';
 import EmployeeView from '@/views/employee/MainView.vue';
 import AddEmployeeView from '@/views/employee/AddView.vue';
-import EditEmployeeView from '@/views/employee/EditView.vue';
+import DetailEmployeeView from '@/views/employee/DetailView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,9 +29,9 @@ const router = createRouter({
       component: AddEmployeeView
     },
     {
-      path: '/employee/edit',
-      name: 'editEmployee',
-      component: EditEmployeeView
+      path: '/employee/detail/:id',
+      name: 'detailEmployee',
+      component: DetailEmployeeView
     }
     // {
     //   path: '/about',

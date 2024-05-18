@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import type { UserLoginRequest } from './types';
+import type { IUserLoginRequest } from './types';
 import server from '@/api/index';
 
 export const useMainStore = defineStore('main', () => {
@@ -20,7 +20,7 @@ export const useMainStore = defineStore('main', () => {
     };
     token.value = '';
   }
-  const loginUser = async (input: UserLoginRequest) => {
+  const loginUser = async (input: IUserLoginRequest) => {
     try {
       console.log('[REQ] loginUser', input);
       const response = await server.post('/auth/login', input);
