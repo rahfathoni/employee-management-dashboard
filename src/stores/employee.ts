@@ -7,7 +7,6 @@ import { useMainStore } from './main'
 export const useEmployeeStore = defineStore('employee', () => {
   const employees = ref<IEmployees[]>([]);
   const search = ref({
-    toPage: 1 as number,
     limit: 10 as number,
     search: '' as string,
     total: 0 as number,
@@ -19,7 +18,6 @@ export const useEmployeeStore = defineStore('employee', () => {
   const $reset = () => {
     employees.value = [];
     search.value = {
-      toPage: 1,
       limit: 10,
       search: '',
       total: 0,
@@ -29,9 +27,9 @@ export const useEmployeeStore = defineStore('employee', () => {
   };
   const fetchEmployeeList = async () => {
     const request = {
-      page: search.value.toPage,
+      page: search.value.current_page,
       limit: search.value.limit,
-      search: ''
+      search: search.value.search
     };
     try {
       console.log('[REQ] fetchEmployeeList', request);
@@ -44,7 +42,6 @@ export const useEmployeeStore = defineStore('employee', () => {
       console.log('[RES] fetchEmployeeList', response.data);
       search.value = {
         ...search.value,
-        toPage: search.value.toPage + 1,
         total: response.data.data.total,
         current_page: response.data.data.current_page,
         total_page: response.data.data.total_page,
