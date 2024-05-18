@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import type { IEmployees } from './types';
+import type { IEmployeeCreateRequest, IEmployees } from './types';
 import server from '@/api/index';
 import { useMainStore } from './main';
 
@@ -52,13 +52,30 @@ export const useEmployeeStore = defineStore('employee', () => {
       console.error('[ERR] fetchEmployeeList', error);
       throw error;
     }
+  };
+  const createEmployeeData = async (input: IEmployeeCreateRequest) => {
+    try {
+      console.log('[REQ] createEmployeeData', input)
+      const response = await server.post('/employee', input, {
+        headers: {
+          'Authorization': `Bearer ${mainStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log('[RES] createEmployeeData', response.data);
+      return response.data;
+    } catch (error) {
+      console.log('[ERR] createEmployeeData', error);
+      throw error;
+    }
   }
-  // TODO : create, edit, delete employee
+  // TODO : edit, delete employee
 
   return { 
     employees,
     search,
     $reset, 
     fetchEmployeeList,
+    createEmployeeData
   };
 })

@@ -33,6 +33,17 @@ export interface IEmployees {
   status: string;
 }
 
+export interface IEmployeeCreateRequest {
+  name: string;
+  gender: 'male' | 'female';
+  email: string;
+  phone: string;
+  date_of_birth: string;
+  address: string;
+  department_id: number;
+  job_position_id: number;
+}
+
 // export interface IEmployeesListResponse {
 //   status: boolean;
 //   message: string;
