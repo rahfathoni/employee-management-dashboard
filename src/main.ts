@@ -13,10 +13,14 @@ import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 import { useMainStore } from './stores/main'
+import { VDateInput } from 'vuetify/labs/VDateInput';
 
 const app = createApp(App)
 const vuetify = createVuetify({
-  components,
+  components: {
+    ...components,
+    VDateInput
+  },
   directives
 })
 
