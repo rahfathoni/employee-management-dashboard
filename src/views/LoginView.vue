@@ -77,7 +77,7 @@
             name="email"
             v-model="email.value.value"
             :error-messages="email.errorMessage.value"
-            label="Email"
+            label="E-mail"
             variant="outlined"
             hint="example: user.test@bayarind.id"
             persistent-hint

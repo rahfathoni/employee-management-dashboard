@@ -78,7 +78,7 @@
         color="primary"
         prepend-icon="mdi-plus-thick"
       >
-        <span class="font-weight-bold">New Employee</span>
+        <span class="font-weight-bold">Employee</span>
       </v-btn>
     </section>
     <section>

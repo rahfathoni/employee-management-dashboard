@@ -43,3 +43,13 @@ export interface IEmployees {
 //     total_page: number;
 //   };
 // }
+
+export interface IDepartments {
+  id: number;
+  title: string;
+}
+
+export interface IJobPositions {
+  id: number;
+  title: string;
+}

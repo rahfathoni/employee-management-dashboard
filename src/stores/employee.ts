@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import type { IEmployees } from './types';
 import server from '@/api/index';
-import { useMainStore } from './main'
+import { useMainStore } from './main';
 
 export const useEmployeeStore = defineStore('employee', () => {
   const employees = ref<IEmployees[]>([]);
