@@ -121,7 +121,7 @@
             color="primary"
             @click="fetchEmployee"
           >
-            Reset
+            Reload
           </v-btn>
         </template>
         </v-data-table>

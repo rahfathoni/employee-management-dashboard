@@ -13,7 +13,7 @@ const route = useRoute();
       <MainHeader class="pt-3" />
     </section>
     <v-main class="h-screen bg-ghost-white">
-      <RouterView class="px-2 pt-5 bg-ghost-white"/>
+      <RouterView class="px-2 py-5 bg-ghost-white"/>
     </v-main>
   </v-layout>
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { useEmployeeStore } from '@/stores/employee';
   import { useReferenceStore } from '@/stores/reference';
+  import { formatDate } from '@/utils';
   import { storeToRefs } from 'pinia';
   import { useField, useForm } from 'vee-validate';
   import { onMounted, ref } from 'vue';
@@ -71,7 +72,7 @@
   const department = useField('department');
   const jobPosition = useField('jobPosition');
   const submit = handleSubmit( async (values) => {
-    let formattingDate = new Date(values.dateOfBirth).toISOString().split('T')[0];
+    let formattingDate = formatDate(new Date(values.dateOfBirth));
     const input = {
       name: values.name,
       gender: values.gender,
@@ -103,6 +104,9 @@
     input.value = input.value.replace(/\D/g, '');
     phone.value.value = input.value;
   };
+  const backToMain = () => {
+    router.push({ path: '/employee' });
+  }
 </script>
 
 <template>
@@ -229,18 +233,37 @@
         class="mt-2"
         autocomplete="off"
       ></v-autocomplete>
-      <div class="mt-4">
-        <v-btn
-          class="me-4"
-          type="submit"
-          color="success"
-        >
-          Submit
-        </v-btn>
-        <v-btn @click="handleReset">
-          clear
-        </v-btn>
-      </div>
+      <v-row no-gutters class="mt-2">
+        <v-col class="px-5 pb-2">
+          <v-btn
+            class="me-8"
+            block
+            color="black"
+            @click=backToMain
+          >
+            Back
+          </v-btn>
+        </v-col>
+        <v-col class="px-5 pb-2">
+          <v-btn
+            block
+            class="me-4"
+            type="submit"
+            color="success"
+          >
+            Submit
+          </v-btn>
+        </v-col>
+        <v-col class="px-5 pb-2">          
+          <v-btn 
+            block 
+            color="warning" 
+            @click="handleReset"
+          >
+            Clear
+          </v-btn>
+        </v-col>
+      </v-row>
     </form>
   </main>
 </template>
