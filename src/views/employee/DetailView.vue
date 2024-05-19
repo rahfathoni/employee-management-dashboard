@@ -10,7 +10,8 @@
   
   const route = useRoute();
   const router = useRouter();
-  const { showNotification } = useMainStore();
+  const mainStore = useMainStore();
+  const { showNotification } = mainStore;
   const referenceStore = useReferenceStore();
   const { fetchDepartmentList, fetchJobPositionList, } = referenceStore;
   const { departments, jobPositions } = storeToRefs(referenceStore);
@@ -66,6 +67,7 @@
   const jobPosition = useField('jobPosition');
 
   const setInitialEmployeeData = () => {
+    mainStore.loadingOverlay = true;
     if (employeeData.value) {
       name.value.value = employeeData.value.name || '';
       gender.value.value = employeeData.value.gender || '';
@@ -79,10 +81,12 @@
       
       const findJobPosition = referenceStore.jobPositions.find((item: any) => item.title === employeeData.value?.position);
       jobPosition.value.value = findJobPosition?.id || '';
-    }        
+    }
+    mainStore.loadingOverlay = false;
   }
 
   onMounted(async () => {
+    mainStore.loadingOverlay = true;
     try {
       let getEmployeeData = getEmployeeFromExistingList(parseInt(route.params.id as string));
       if (!getEmployeeData) router.push({ path: '/employee' });
@@ -90,7 +94,9 @@
       await fetchJobPositionList();
       console.log('[CHECK] employeeData', employeeData.value)
       setInitialEmployeeData();
+      mainStore.loadingOverlay = false;
     } catch (err: any) {
+      mainStore.loadingOverlay = false;
       if (err.response.status === 401) {
         if (err.response.data.message.includes("token is expired")) {
           showNotification('Timeout. Please Login again', 'warning');
@@ -105,6 +111,7 @@
 
   const submit = handleSubmit( async (values) => {
     if (employeeData.value) {
+      mainStore.loadingOverlay = true;
       let formattingDate = formatDate(new Date(values.dateOfBirth));
       const newInput = {
         id: employeeData.value.id,
@@ -123,7 +130,9 @@
           router.push({ path: '/employee' });
           showNotification('Updated employee data success', 'success');
         }
+        mainStore.loadingOverlay = false;
       } catch (err: any) {
+        mainStore.loadingOverlay = false;
         if (err.response.status === 401) {
           if (err.response.data.message.includes("token is expired")) {
             showNotification('Timeout. Please Login again', 'warning');
@@ -146,13 +155,16 @@
   }
   const deleteEmployee = async () => {
     if(employeeData.value) {
+      mainStore.loadingOverlay = true;
       try {
         let response = await deleteEmployeeData(employeeData.value?.id);
         if (response.status) {
           router.push({ path: '/employee' });
           showNotification('Deleted employee data success', 'success');
         }
+        mainStore.loadingOverlay = false;
       } catch (err: any) {
+        mainStore.loadingOverlay = false;
         if (err.response.status === 401) {
           if (err.response.data.message.includes("token is expired")) {
             showNotification('Timeout. Please Login again', 'warning');

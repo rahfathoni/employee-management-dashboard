@@ -6,7 +6,7 @@
 
   const router = useRouter();
   const mainStore = useMainStore();
-  const { showNavBar } = storeToRefs(mainStore);
+  const { showNavBar, loadingOverlay } = storeToRefs(mainStore);
   const { logoutUser, showNotification } = mainStore;
   const navMenu = ref([
     {label: 'Home', icon: 'mdi-home', route: "/"},
@@ -14,13 +14,16 @@
   ]);
 
   const logout = async () => {
+    loadingOverlay.value = true;
     try {
       const response = await logoutUser();
       if (response.status === true) {
         router.push({ path: '/login' });
         showNotification('Logout success', 'success', 3000);
       }
+      loadingOverlay.value = false;
     } catch (err: any) {
+      loadingOverlay.value = false;
       if (err.response.status === 401) {
         if (err.response.data.message.includes("token is expired")) {
           showNotification('Timeout. Please Login again', 'warning');

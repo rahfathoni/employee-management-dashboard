@@ -17,6 +17,7 @@ export const useMainStore = defineStore('main', () => {
     text: '' as string,
     show: false as boolean
   });
+  const loadingOverlay = ref(false as boolean);
 
   const $reset = () => {
     user.value = {
@@ -78,6 +79,7 @@ export const useMainStore = defineStore('main', () => {
     token, 
     user, 
     notification,
+    loadingOverlay,
     $reset, 
     loginUser,
     logoutUser,
