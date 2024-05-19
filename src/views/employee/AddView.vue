@@ -9,7 +9,8 @@
   import { useRouter } from 'vue-router';
   
   const router = useRouter();
-  const { showNotification } = useMainStore();
+  const mainStore = useMainStore();
+  const { showNotification } = mainStore;
   const referenceStore = useReferenceStore();
   const { fetchDepartmentList, fetchJobPositionList, } = referenceStore;
   const { departments, jobPositions } = storeToRefs(referenceStore);
@@ -19,10 +20,13 @@
   // const menuDate = ref(false);
 
   onMounted(async () => {
+    mainStore.loadingOverlay = true;
     try {
       await fetchDepartmentList();
       await fetchJobPositionList();
+      mainStore.loadingOverlay = false;
     } catch (err: any) {
+      mainStore.loadingOverlay = false;
       if (err.response.status === 401) {
         if (err.response.data.message.includes("token is expired")) {
           showNotification('Timeout. Please Login again', 'warning');
@@ -79,7 +83,9 @@
   const address = useField('address');
   const department = useField('department');
   const jobPosition = useField('jobPosition');
+
   const submit = handleSubmit( async (values) => {
+    mainStore.loadingOverlay = true;
     let formattingDate = formatDate(new Date(values.dateOfBirth));
     const input = {
       name: values.name,
@@ -97,7 +103,9 @@
         router.push({ path: '/employee' });
         showNotification('Submitted employee data success', 'success');
       }
+      mainStore.loadingOverlay = false;
     } catch (err: any) {
+      mainStore.loadingOverlay = false;
       if (err.response.status === 401) {
         if (err.response.data.message.includes("token is expired")) {
           showNotification('Timeout. Please Login again', 'warning');

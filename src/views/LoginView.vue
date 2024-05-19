@@ -31,6 +31,7 @@
   const password = useField('password');
 
   const login = handleSubmit(async (value) => {
+    mainStore.loadingOverlay = true;
     try {
       const response = await loginUser({
         email: value.email,
@@ -40,7 +41,9 @@
         router.push({ path: '/employee' });
         showNotification('Welcome to Employee Management Dashboard', 'info');
       }
+      mainStore.loadingOverlay = false;
     } catch (err: any) {
+      mainStore.loadingOverlay = false;
       if (err.response.status === 401) {
         showNotification('Unauthorized. HINT: try username-password from example', 'warning', 3000);
       } else {

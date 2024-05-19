@@ -9,7 +9,7 @@ import PopNotif from './components/PopNotif.vue';
 const route = useRoute();
 const mainStore = useMainStore();
 const { hideNotification } = mainStore;
-const { notification } = storeToRefs(mainStore)
+const { notification, loadingOverlay } = storeToRefs(mainStore);
 </script>
 
 <template>
@@ -29,5 +29,17 @@ const { notification } = storeToRefs(mainStore)
       :timeout="notification.timeout"
       @closeShow="hideNotification"
     />
+    <v-overlay
+      v-model="loadingOverlay"
+      persistent
+      class="align-center justify-center"
+    >
+      <v-progress-circular
+        color="green"
+        size="85"
+        width="10"
+        indeterminate
+      ></v-progress-circular>
+    </v-overlay>
   </v-layout>
 </template>

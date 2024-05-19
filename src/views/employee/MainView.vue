@@ -16,15 +16,19 @@
     { title: 'Position', key: 'position', align: 'start', sortable: false },
     { title: 'Detail', key: 'detail', align: 'center', sortable: false },
   ]);
-  const { showNotification } = useMainStore();
+  const mainStore = useMainStore();
+  const { showNotification } = mainStore;
   
   const fetchEmployee = async () => {
+    mainStore.loadingOverlay = true;
     try {
       let response = await fetchEmployeeList();
       if (response.data.list && response.data.list.length === 0) {
         showNotification('No data available', 'info', 3000);
       }
+      mainStore.loadingOverlay = false;
     } catch (err: any) {
+      mainStore.loadingOverlay = false;
       if (err.response.status === 401) {
         if (err.response.data.message.includes("token is expired")) {
           showNotification('Timeout. Please Login again', 'warning');
@@ -38,8 +42,10 @@
   }
 
   onMounted(async () => {
+    mainStore.loadingOverlay = true;
     employeeStore.$reset();
     await fetchEmployee();
+    mainStore.loadingOverlay = false;
   });
   watch(() => search.value.current_page, async (newValue) => {
     if (newValue) {
