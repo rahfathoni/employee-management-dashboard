@@ -1,8 +1,9 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import type { IEmployees } from './types';
+import type { IEmployeeCreateRequest, IEmployeeEditRequest, IEmployees, IEmployeesData } from './types';
 import server from '@/api/index';
 import { useMainStore } from './main';
+import { useReferenceStore } from './reference';
 
 export const useEmployeeStore = defineStore('employee', () => {
   const employees = ref<IEmployees[]>([]);
@@ -13,7 +14,9 @@ export const useEmployeeStore = defineStore('employee', () => {
     current_page: 0 as number,
     total_page: 0 as number
   });
+  const employeeData = ref<IEmployeesData>();
   const mainStore = useMainStore();
+  const referenceStore = useReferenceStore();
 
   const $reset = () => {
     employees.value = [];
@@ -25,6 +28,19 @@ export const useEmployeeStore = defineStore('employee', () => {
       total_page: 0
     };
   };
+  const getEmployeeFromExistingList = (id: number) => {
+    if (employees.value && employees.value.length < 1) return false;
+    const searchExistingById = employees.value.find(item => item.id === id);
+    if (!searchExistingById) return false;
+    const findDepartment = referenceStore.departments.find((item: any) => item.title === searchExistingById.departement);
+    const findJobPosition = referenceStore.jobPositions.find((item: any) => item.title === searchExistingById.position);
+    employeeData.value = {
+      ...searchExistingById,
+      departement: findDepartment ? findDepartment.id : 0,
+      position: findJobPosition ? findJobPosition.id : 0,
+    };
+    return true;
+  }
   const fetchEmployeeList = async () => {
     const request = {
       page: search.value.current_page,
@@ -52,13 +68,49 @@ export const useEmployeeStore = defineStore('employee', () => {
       console.error('[ERR] fetchEmployeeList', error);
       throw error;
     }
+  };
+  const createEmployeeData = async (input: IEmployeeCreateRequest) => {
+    try {
+      console.log('[REQ] createEmployeeData', input)
+      const response = await server.post('/employee', input, {
+        headers: {
+          'Authorization': `Bearer ${mainStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log('[RES] createEmployeeData', response.data);
+      return response.data;
+    } catch (error) {
+      console.log('[ERR] createEmployeeData', error);
+      throw error;
+    }
   }
-  // TODO : create, edit, delete employee
+  const editEmployeeData = async (input: IEmployeeEditRequest) => {
+    try {
+      console.log('[REQ] editEmployeeData', input)
+      const response = await server.put('/employee', input, {
+        headers: {
+          'Authorization': `Bearer ${mainStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log('[RES] editEmployeeData', response.data);
+      return response.data;
+    } catch (error) {
+      console.log('[ERR] editEmployeeData', error);
+      throw error;
+    }
+  }
+  // TODO : edit, delete employee
 
   return { 
     employees,
     search,
+    employeeData,
     $reset, 
     fetchEmployeeList,
+    createEmployeeData,
+    editEmployeeData,
+    getEmployeeFromExistingList
   };
 })

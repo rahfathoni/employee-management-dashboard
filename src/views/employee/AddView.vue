@@ -1,5 +1,7 @@
 <script setup lang="ts">
+  import { useEmployeeStore } from '@/stores/employee';
   import { useReferenceStore } from '@/stores/reference';
+  import { formatDate } from '@/utils';
   import { storeToRefs } from 'pinia';
   import { useField, useForm } from 'vee-validate';
   import { onMounted, ref } from 'vue';
@@ -7,8 +9,10 @@
   
   const router = useRouter();
   const referenceStore = useReferenceStore();
-  const { fetchDepartmentList, fetchJobPositionList } = referenceStore;
+  const { fetchDepartmentList, fetchJobPositionList, } = referenceStore;
   const { departments, jobPositions } = storeToRefs(referenceStore);
+  const employeeStore = useEmployeeStore();
+  const { createEmployeeData } = employeeStore;
   const today = ref(new Date().toISOString().substr(0, 10));
   // const menuDate = ref(false);
 
@@ -68,30 +72,41 @@
   const department = useField('department');
   const jobPosition = useField('jobPosition');
   const submit = handleSubmit( async (values) => {
-    console.log('cek =>', values);
-    // try {
-    //   const input = {
-    //     name: values.name,
-    //     address: values.address,
-    //     relatedHospital: values?.select.join(',')
-    //   }
-    //   const response: any = await addVendor(input);
-    //   if (response.status === 'success') {
-    //     handleReset();
-    //     router.push({ path: '/vendor' });
-    //   }
-    // } catch(error) {
-    //   snackbar.text = "Error. Plase try again later.";
-    //   snackbar.color = "danger";
-    //   snackbar.show = true;
-    //   console.log('[ERROR] submit', error);
-    // }
+    let formattingDate = formatDate(new Date(values.dateOfBirth));
+    const input = {
+      name: values.name,
+      gender: values.gender,
+      email: values.email,
+      phone: values.phone,
+      date_of_birth: formattingDate,
+      address: values.address,
+      department_id: values.department,
+      job_position_id: values.jobPosition
+    }
+    try {
+      let response = await createEmployeeData(input);
+      if (response.status) {
+        router.push({ path: '/employee' })
+      }
+    } catch (err: any) {
+      if (err.response.status === 401) {
+        router.push({ path: '/login' });
+      } 
+      // else {
+      //   snackbar.text = "Error. Plase try again later";
+      //   snackbar.color = "error";
+      // }
+      // snackbar.show = true;
+    }
   });
   const phoneInput = (event: Event) => {
     const input = event.target as HTMLInputElement;
     input.value = input.value.replace(/\D/g, '');
     phone.value.value = input.value;
   };
+  const backToMain = () => {
+    router.push({ path: '/employee' });
+  }
 </script>
 
 <template>
@@ -151,7 +166,7 @@
         autocomplete="off"
         :max="today"
       ></v-text-field> -->
-      <!-- Date Picker method 2 <prob not ready production> -->
+      <!-- Date Picker method 2 -->
       <v-date-input
         name="dateOfBirthField"
         v-model="dateOfBirth.value.value"
@@ -218,18 +233,37 @@
         class="mt-2"
         autocomplete="off"
       ></v-autocomplete>
-      <div class="mt-4">
-        <v-btn
-          class="me-4"
-          type="submit"
-          color="success"
-        >
-          Submit
-        </v-btn>
-        <v-btn @click="handleReset">
-          clear
-        </v-btn>
-      </div>
+      <v-row no-gutters class="mt-2">
+        <v-col class="px-5 pb-2">
+          <v-btn
+            class="me-8"
+            block
+            color="black"
+            @click=backToMain
+          >
+            Back
+          </v-btn>
+        </v-col>
+        <v-col class="px-5 pb-2">
+          <v-btn
+            block
+            class="me-4"
+            type="submit"
+            color="success"
+          >
+            Submit
+          </v-btn>
+        </v-col>
+        <v-col class="px-5 pb-2">          
+          <v-btn 
+            block 
+            color="warning" 
+            @click="handleReset"
+          >
+            Clear
+          </v-btn>
+        </v-col>
+      </v-row>
     </form>
   </main>
 </template>
