@@ -11,6 +11,12 @@ export const useMainStore = defineStore('main', () => {
     name: '' as string
   });
   const token = ref('' as string);
+  const notification = ref({
+    color: '' as string,
+    timeout: 6000 as number,
+    text: '' as string,
+    show: false as boolean
+  });
 
   const $reset = () => {
     user.value = {
@@ -20,6 +26,7 @@ export const useMainStore = defineStore('main', () => {
     };
     token.value = '';
   }
+
   const loginUser = async (input: IUserLoginRequest) => {
     try {
       console.log('[REQ] loginUser', input);
@@ -55,13 +62,26 @@ export const useMainStore = defineStore('main', () => {
       throw error;
     }
   }
+  const showNotification = (message: string = 'Something went wrong.', color: string = 'white', timeout: number = 6000) => {
+    notification.value.text = message;
+    notification.value.color = color;
+    notification.value.timeout = timeout;
+    notification.value.show = true;
+  }
+  const hideNotification = () => {
+    notification.value.show = false;
+    notification.value.text = '';
+  }
 
   return { 
     showNavBar,
     token, 
     user, 
+    notification,
     $reset, 
     loginUser,
-    logoutUser 
+    logoutUser,
+    showNotification,
+    hideNotification
   };
 })

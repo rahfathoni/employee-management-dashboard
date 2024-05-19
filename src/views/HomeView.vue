@@ -7,7 +7,7 @@ const { user } = storeToRefs(mainStore);
 </script>
 
 <template>
-  <main id="homePage">
+  <main id="homePage" class="mt-15 justify-center d-flex-col text-center">
     <h1 name="title">
       Hello {{ user.name }}. Welcome to Employee Management Dashboard.
     </h1>

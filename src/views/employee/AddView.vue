@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { useEmployeeStore } from '@/stores/employee';
+  import { useMainStore } from '@/stores/main';
   import { useReferenceStore } from '@/stores/reference';
   import { formatDate } from '@/utils';
   import { storeToRefs } from 'pinia';
@@ -8,6 +9,7 @@
   import { useRouter } from 'vue-router';
   
   const router = useRouter();
+  const { showNotification } = useMainStore();
   const referenceStore = useReferenceStore();
   const { fetchDepartmentList, fetchJobPositionList, } = referenceStore;
   const { departments, jobPositions } = storeToRefs(referenceStore);
@@ -22,7 +24,13 @@
       await fetchJobPositionList();
     } catch (err: any) {
       if (err.response.status === 401) {
+        if (err.response.data.message.includes("token is expired")) {
+          showNotification('Timeout. Please Login again', 'warning');
+        }
+        showNotification('Please Login again', 'warning');
         router.push({ path: '/login' });
+      } else {
+        showNotification('Something went wrong. Plase try again later', 'error');
       }
     }
   });
@@ -86,17 +94,19 @@
     try {
       let response = await createEmployeeData(input);
       if (response.status) {
-        router.push({ path: '/employee' })
+        router.push({ path: '/employee' });
+        showNotification('Submitted employee data success', 'success');
       }
     } catch (err: any) {
       if (err.response.status === 401) {
+        if (err.response.data.message.includes("token is expired")) {
+          showNotification('Timeout. Please Login again', 'warning');
+        }
+        showNotification('Please Login again', 'warning');
         router.push({ path: '/login' });
-      } 
-      // else {
-      //   snackbar.text = "Error. Plase try again later";
-      //   snackbar.color = "error";
-      // }
-      // snackbar.show = true;
+      } else {
+        showNotification('Something went wrong. Plase try again later', 'error');
+      }
     }
   });
   const phoneInput = (event: Event) => {

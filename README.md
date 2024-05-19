@@ -1,4 +1,22 @@
-# .
+# Employee Management Dashboard
+## WEBSITE URL
+
+https://employee-management-dashboard-seven.vercel.app
+
+## HOW TO RUN WEBSITE LOCALLY
+
+  1. In terminal or git bash, clone repository:
+      ```
+      git clone https://github.com/rahfathoni/employee-management-dashboard.git
+      ``` 
+  2. In terminal, install dependencies:
+      ```
+      npm install
+      ```
+  3. In terminal, run website locally:
+      ```
+      npm run dev
+      ```
 
 This template should help get you started developing with Vue 3 in Vite.
 

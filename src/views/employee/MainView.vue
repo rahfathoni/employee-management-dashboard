@@ -1,45 +1,39 @@
 <script setup lang="ts">
   import { useEmployeeStore } from '@/stores/employee';
-  import { onMounted, ref, reactive, watch } from 'vue';
-  import PopNotif from '@/components/PopNotif.vue';
+  import { onMounted, ref, watch } from 'vue';
   import { useRouter } from 'vue-router';
   import { storeToRefs } from 'pinia';
+  import { useMainStore } from '@/stores/main';
 
   const router = useRouter();
   const employeeStore = useEmployeeStore();
   const { fetchEmployeeList } = employeeStore;
   const { employees, search } = storeToRefs(employeeStore);
   const tableProps = ref<any[]>([
-      { title: 'Employee ID', key: 'id', align: 'start', sortable: true },
-      { title: 'Name', key: 'name', align: 'start', sortable: true },
-      { title: 'Departement', key: 'departement', align: 'start', sortable: true },
-      { title: 'Position', key: 'position', align: 'start', sortable: false },
-      { title: 'Detail', key: 'detail', align: 'center', sortable: false },
-    ])
+    { title: 'Employee ID', key: 'id', align: 'start', sortable: true },
+    { title: 'Name', key: 'name', align: 'start', sortable: true },
+    { title: 'Departement', key: 'departement', align: 'start', sortable: true },
+    { title: 'Position', key: 'position', align: 'start', sortable: false },
+    { title: 'Detail', key: 'detail', align: 'center', sortable: false },
+  ]);
+  const { showNotification } = useMainStore();
   
-  const snackbar = reactive({
-    show: false,
-    text: '',
-    color: '',
-    timeout: 3000
-  });
-
   const fetchEmployee = async () => {
     try {
       let response = await fetchEmployeeList();
       if (response.data.list && response.data.list.length === 0) {
-        snackbar.text = "No data available";
-        snackbar.color = "info";
-        snackbar.show = true;
+        showNotification('No data available', 'info', 3000);
       }
     } catch (err: any) {
       if (err.response.status === 401) {
+        if (err.response.data.message.includes("token is expired")) {
+          showNotification('Timeout. Please Login again', 'warning');
+        }
+        showNotification('Please Login again', 'warning');
         router.push({ path: '/login' });
       } else {
-        snackbar.text = "Error. Plase try again later";
-        snackbar.color = "error";
+        showNotification('Something went wrong. Plase try again later', 'error');
       }
-      snackbar.show = true;
     }
   }
 
@@ -61,9 +55,6 @@
   const toDetailEmployee = (value: number) => {
     router.push({ path: `/employee/detail/${value}` });
   }
-  const closePopup = (val: boolean) => {
-    snackbar.show = val;
-  };
 </script>
 
 <template>
@@ -114,8 +105,8 @@
           </v-icon>
         </template>
         <template v-slot:no-data>
-          <h3>
-            No Data
+          <h3 class="my-10">
+            Data not found
           </h3>
           <v-btn
             color="primary"
@@ -134,13 +125,5 @@
         </div>
       </v-card>
     </section>
-
-    <PopNotif
-      v-model="snackbar.show"
-      :text="snackbar.text"
-      :color="snackbar.color"
-      :timeout="snackbar.timeout"
-      @closeShow="closePopup"
-    />
   </main>
 </template>
