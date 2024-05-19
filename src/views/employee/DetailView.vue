@@ -7,6 +7,7 @@
   import { useField, useForm } from 'vee-validate';
   import { onMounted, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
+  import DetailInfo from '@/components/employee/DetailInfo.vue';
   
   const route = useRoute();
   const router = useRouter();
@@ -20,6 +21,7 @@
   const { employeeData } = storeToRefs(employeeStore);
   const today = ref(new Date().toISOString().substr(0, 10));
   const deleteDialog = ref(false);
+  const isEditMode = ref(false);
 
   const { handleSubmit } = useForm({
     validationSchema: {
@@ -150,9 +152,6 @@
     input.value = input.value.replace(/\D/g, '');
     phone.value.value = input.value;
   };
-  const backToMain = () => {
-    router.push({ path: '/employee' });
-  }
   const deleteEmployee = async () => {
     if(employeeData.value) {
       mainStore.loadingOverlay = true;
@@ -177,6 +176,10 @@
       }
     }
   }
+  const changeMode = () => {
+    setInitialEmployeeData();
+    isEditMode.value = !isEditMode.value;
+  }
 </script>
 
 <template>
@@ -185,8 +188,54 @@
       <h1 name="subtitle" class="font-weight-medium">
         Employee Detail
       </h1>
+      <div>
+        <v-btn
+          v-if="!isEditMode"
+          class="me-8"
+          name="btnToEditMode"
+          color="success"
+          prepend-icon="mdi-notebook-edit-outline"
+          @click="changeMode"
+        >
+          To Edit Mode
+        </v-btn>
+        <v-btn
+          v-if="isEditMode"
+          name="btnToDetailMode"
+          class="me-8"
+          color="primary"
+          prepend-icon="mdi-notebook-outline"
+          @click="changeMode"
+        >
+          To Detail mode
+        </v-btn>
+        <v-btn
+          name="btnDeleteData"
+          color="error"
+          @click="deleteDialog = true"
+          prepend-icon="mdi-delete-forever"
+          >
+          Delete Data
+        </v-btn>
+      </div>
     </section>
-    <form name="editEmployeeForm" @submit.prevent="submit">
+    <section v-if="!isEditMode" class="mt-5 ml-3">
+      <DetailInfo v-if="employeeData" :data="employeeData" />
+      <v-row no-gutters class="mt-8 justify-space-between">
+        <v-col cols="3" class="px-5 pb-2">
+          <v-btn
+            class="me-8"
+            block
+            prepend-icon="mdi-arrow-left-bold"
+            color="black"
+            to="/employee"
+          >
+            Back
+          </v-btn>
+        </v-col>
+      </v-row>
+    </section>
+    <form class="mt-3" v-if="isEditMode" name="editEmployeeForm" @submit.prevent="submit">
       <v-text-field
         name="nameField"
         v-model="name.value.value"
@@ -272,7 +321,7 @@
             block
             prepend-icon="mdi-arrow-left-bold"
             color="black"
-            @click=backToMain
+            to="/employee"
           >
             Back
           </v-btn>
@@ -285,7 +334,7 @@
             prepend-icon="mdi-pencil"
             color="success"
           >
-            Edit
+            Edit Data
           </v-btn>
         </v-col>
         <v-col class="px-5 pb-2">
@@ -295,17 +344,7 @@
             color="warning"
             @click="setInitialEmployeeData"
           >
-            Reset
-          </v-btn>
-        </v-col>
-        <v-col class="px-5 pb-2">
-          <v-btn
-            block
-            color="error"
-            @click="deleteDialog = true"
-            prepend-icon="mdi-delete-forever"
-            >
-            Delete
+            Reset Data
           </v-btn>
         </v-col>
       </v-row>

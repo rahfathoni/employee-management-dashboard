@@ -122,9 +122,6 @@
     input.value = input.value.replace(/\D/g, '');
     phone.value.value = input.value;
   };
-  const backToMain = () => {
-    router.push({ path: '/employee' });
-  }
 </script>
 
 <template>
@@ -258,7 +255,7 @@
             block
             prepend-icon="mdi-arrow-left-bold"
             color="black"
-            @click=backToMain
+            to="/employee"
           >
             Back
           </v-btn>
