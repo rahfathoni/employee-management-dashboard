@@ -291,9 +291,10 @@
       width="auto"
     >
       <v-card
-        max-width="400"
+        max-width="600"
         prepend-icon="mdi-delete-forever"
         color="error"
+        class="pb-5 pt-2 px-5"
         text="Are you sure you want to delete this employee data?"
         title="Delete Employee Data"
         >
