@@ -13,9 +13,10 @@
   const { fetchDepartmentList, fetchJobPositionList, } = referenceStore;
   const { departments, jobPositions } = storeToRefs(referenceStore);
   const employeeStore = useEmployeeStore();
-  const { getEmployeeFromExistingList, editEmployeeData } = employeeStore;
+  const { getEmployeeFromExistingList, editEmployeeData, deleteEmployeeData } = employeeStore;
   const { employeeData } = storeToRefs(employeeStore);
   const today = ref(new Date().toISOString().substr(0, 10));
+  const deleteDialog = ref(false);
 
   const { handleSubmit } = useForm({
     validationSchema: {
@@ -62,6 +63,23 @@
   const department = useField('department');
   const jobPosition = useField('jobPosition');
 
+  const setInitialEmployeeData = () => {
+    if (employeeData.value) {
+      name.value.value = employeeData.value.name || '';
+      gender.value.value = employeeData.value.gender || '';
+      email.value.value = employeeData.value.email || '';
+      phone.value.value = employeeData.value.phone || '';
+      dateOfBirth.value.value = new Date(employeeData.value.date_of_birth) || '';
+      address.value.value = employeeData.value.address || '';
+  
+      const findDepartment = referenceStore.departments.find((item: any) => item.title === employeeData.value?.departement);
+      department.value.value = findDepartment?.id || '';        
+      
+      const findJobPosition = referenceStore.jobPositions.find((item: any) => item.title === employeeData.value?.position);
+      jobPosition.value.value = findJobPosition?.id || '';
+    }        
+  }
+
   onMounted(async () => {
     try {
       let getEmployeeData = getEmployeeFromExistingList(parseInt(route.params.id as string));
@@ -69,16 +87,7 @@
       await fetchDepartmentList();
       await fetchJobPositionList();
       console.log('[CHECK] employeeData', employeeData.value)
-      if (employeeData.value) {
-        name.value.value = employeeData.value.name || '';
-        gender.value.value = employeeData.value.gender || '';
-        email.value.value = employeeData.value.email || '';
-        phone.value.value = employeeData.value.phone || '';
-        dateOfBirth.value.value = new Date(employeeData.value.date_of_birth) || '';
-        address.value.value = employeeData.value.address || '';
-        department.value.value = employeeData.value.departement || '';        
-        jobPosition.value.value = employeeData.value.position || '';
-      }
+      setInitialEmployeeData();
     } catch (err: any) {
       if (err.response.status === 401) {
         router.push({ path: '/login' });
@@ -122,20 +131,27 @@
     input.value = input.value.replace(/\D/g, '');
     phone.value.value = input.value;
   };
-  const resetData = () => {
-    if (employeeData.value) {
-      name.value.value = employeeData.value.name;
-      gender.value.value = employeeData.value.gender;
-      email.value.value = employeeData.value.email;
-      phone.value.value = employeeData.value.phone;
-      dateOfBirth.value.value = new Date(employeeData.value.date_of_birth);
-      address.value.value = employeeData.value.address;
-      department.value.value = employeeData.value.departement;
-      jobPosition.value.value = employeeData.value.position;
-    }
-  }
   const backToMain = () => {
     router.push({ path: '/employee' });
+  }
+  const deleteEmployee = async () => {
+    if(employeeData.value) {
+      try {
+        let response = await deleteEmployeeData(employeeData.value?.id);
+        if (response.status) {
+          router.push({ path: '/employee' })
+        }
+      } catch (err: any) {
+        if (err.response.status === 401) {
+          router.push({ path: '/login' });
+        } 
+        // else {
+        //   snackbar.text = "Error. Plase try again later";
+        //   snackbar.color = "error";
+        // }
+        // snackbar.show = true;
+      }
+    }
   }
 </script>
 
@@ -230,6 +246,7 @@
           <v-btn
             class="me-8"
             block
+            prepend-icon="mdi-arrow-left-bold"
             color="black"
             @click=backToMain
           >
@@ -241,6 +258,7 @@
             block
             class="me-8"
             type="submit"
+            prepend-icon="mdi-pencil"
             color="success"
           >
             Edit
@@ -249,13 +267,52 @@
         <v-col class="px-5 pb-2">
           <v-btn
             block
+            prepend-icon="mdi-autorenew"
             color="warning"
-            @click="resetData"
+            @click="setInitialEmployeeData"
           >
             Reset
           </v-btn>
         </v-col>
+        <v-col class="px-5 pb-2">
+          <v-btn
+            block
+            color="error"
+            @click="deleteDialog = true"
+            prepend-icon="mdi-delete-forever"
+            >
+            Delete
+          </v-btn>
+        </v-col>
       </v-row>
     </form>
+    <v-dialog
+      v-model="deleteDialog"
+      width="auto"
+    >
+      <v-card
+        max-width="400"
+        prepend-icon="mdi-delete-forever"
+        color="error"
+        text="Are you sure you want to delete this employee data?"
+        title="Delete Employee Data"
+        >
+        <template v-slot:actions>
+          <v-btn
+            variant="outlined"
+            class="me-8"
+            text="Delete"
+            @click="deleteEmployee"
+            ></v-btn>
+          <v-btn
+            variant="outlined"
+            class=""
+            text="Close"
+            color="black"
+            @click="deleteDialog = false"
+          ></v-btn>
+        </template>
+      </v-card>
+    </v-dialog>
   </main>
 </template>

@@ -33,18 +33,6 @@ export interface IEmployees {
   status: string;
 }
 
-export interface IEmployeesData {
-  id: number;
-  name: string;
-  gender: string;
-  email: string;
-  phone: string;
-  date_of_birth: string;
-  address: string;
-  departement: number;
-  position: number;
-  status: string;
-}
 
 export interface IEmployeeCreateRequest {
   name: string;

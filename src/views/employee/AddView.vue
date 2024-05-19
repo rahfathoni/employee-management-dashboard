@@ -238,6 +238,7 @@
           <v-btn
             class="me-8"
             block
+            prepend-icon="mdi-arrow-left-bold"
             color="black"
             @click=backToMain
           >
@@ -249,6 +250,7 @@
             block
             class="me-4"
             type="submit"
+            prepend-icon="mdi-check-bold"
             color="success"
           >
             Submit
@@ -257,7 +259,8 @@
         <v-col class="px-5 pb-2">          
           <v-btn 
             block 
-            color="warning" 
+            color="warning"
+            prepend-icon="mdi-close-thick"
             @click="handleReset"
           >
             Clear

@@ -1,9 +1,8 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import type { IEmployeeCreateRequest, IEmployeeEditRequest, IEmployees, IEmployeesData } from './types';
+import type { IEmployeeCreateRequest, IEmployeeEditRequest, IEmployees } from './types';
 import server from '@/api/index';
 import { useMainStore } from './main';
-import { useReferenceStore } from './reference';
 
 export const useEmployeeStore = defineStore('employee', () => {
   const employees = ref<IEmployees[]>([]);
@@ -14,9 +13,8 @@ export const useEmployeeStore = defineStore('employee', () => {
     current_page: 0 as number,
     total_page: 0 as number
   });
-  const employeeData = ref<IEmployeesData>();
+  const employeeData = ref<IEmployees>();
   const mainStore = useMainStore();
-  const referenceStore = useReferenceStore();
 
   const $reset = () => {
     employees.value = [];
@@ -32,13 +30,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     if (employees.value && employees.value.length < 1) return false;
     const searchExistingById = employees.value.find(item => item.id === id);
     if (!searchExistingById) return false;
-    const findDepartment = referenceStore.departments.find((item: any) => item.title === searchExistingById.departement);
-    const findJobPosition = referenceStore.jobPositions.find((item: any) => item.title === searchExistingById.position);
-    employeeData.value = {
-      ...searchExistingById,
-      departement: findDepartment ? findDepartment.id : 0,
-      position: findJobPosition ? findJobPosition.id : 0,
-    };
+    employeeData.value = searchExistingById;
     return true;
   }
   const fetchEmployeeList = async () => {
@@ -101,7 +93,26 @@ export const useEmployeeStore = defineStore('employee', () => {
       throw error;
     }
   }
-  // TODO : edit, delete employee
+  const deleteEmployeeData = async (id: number) => {
+    try {
+      const input = {
+        id
+      }
+      console.log('[REQ] deleteEmployeeData', input)
+      const response = await server.delete('/employee', {
+        headers: {
+          'Authorization': `Bearer ${mainStore.token}`,
+          'Content-Type': 'application/json'
+        },
+        data: input
+      });
+      console.log('[RES] deleteEmployeeData', response.data);
+      return response.data;
+    } catch (error) {
+      console.log('[ERR] deleteEmployeeData', error);
+      throw error;
+    }
+  }
 
   return { 
     employees,
@@ -111,6 +122,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     fetchEmployeeList,
     createEmployeeData,
     editEmployeeData,
-    getEmployeeFromExistingList
+    getEmployeeFromExistingList,
+    deleteEmployeeData
   };
 })
