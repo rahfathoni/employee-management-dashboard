@@ -1,13 +1,12 @@
 <script setup lang="ts">
   import { useMainStore } from '@/stores/main';
   import { useField, useForm } from 'vee-validate';
-  import { onBeforeMount, ref, reactive } from 'vue';
+  import { onBeforeMount, ref } from 'vue';
   import { useRouter } from 'vue-router';
-  import PopNotif from '@/components/PopNotif.vue';
 
   const router = useRouter();
   const mainStore = useMainStore();
-  const { loginUser } = mainStore;
+  const { loginUser, showNotification } = mainStore;
   onBeforeMount(() => {
     mainStore.$reset();
     localStorage.removeItem('user');
@@ -15,12 +14,6 @@
   });
   
   const isPasswordShow = ref(false);
-  const snackbar = reactive({
-    show: false,
-    text: '',
-    color: '',
-    timeout: 3000
-  });
     
   const { handleSubmit } = useForm({
     validationSchema: {
@@ -45,21 +38,16 @@
       });
       if (response.status === true) {
         router.push({ path: '/employee' });
+        showNotification('Welcome to Employee Management Dashboard', 'info');
       }
     } catch (err: any) {
       if (err.response.status === 401) {
-        snackbar.text = "Unauthorized. HINT: try username-password from example";
-        snackbar.color = "warning";
+        showNotification('Unauthorized. HINT: try username-password from example', 'warning', 3000);
       } else {
-        snackbar.text = "Error. Plase try again later";
-        snackbar.color = "danger";
+        showNotification('Error. Plase try again later', 'error');
       }
-      snackbar.show = true;
     }
   })
-  const closePopup = (val: boolean) => {
-    snackbar.show = val;
-  }
 </script>
 
 <template>
@@ -110,13 +98,5 @@
         </form>
       </v-card-text>
     </v-card>
-
-    <PopNotif
-      v-model="snackbar.show"
-      :text="snackbar.text"
-      :color="snackbar.color"
-      :timeout="snackbar.timeout"
-      @closeShow="closePopup"
-    />
   </main>
 </template>
